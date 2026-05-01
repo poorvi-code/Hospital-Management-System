@@ -10,6 +10,35 @@ const Doctors = () => {
   });
   const [error, setError] = useState('');
 
+  const fetchDoctors = async () => {
+    try {
+      const res = await api.get('/doctors');
+      setDoctors(res.data);
+    } catch (err) {
+      setError('Failed to fetch doctors');
+    }
+  };
+
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/doctors', formData);
+      setShowModal(false);
+      setFormData({ name: '', specialization: '', contact: '' });
+      fetchDoctors();
+    } catch (err) {
+      setError('Failed to add doctor');
+    }
+  };
+
   const deleteDoctor = async (id) => {
     if (window.confirm('Are you sure you want to remove this doctor?')) {
       try {
@@ -23,12 +52,12 @@ const Doctors = () => {
 
   return (
     <div className="animate-fade-up">
-      <div className="header-flex" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1rem' }}>
+      <div className="header-flex">
         <div className="header-text">
           <h2 className="page-title">Doctors Directory</h2>
           <p className="page-subtitle">Manage healthcare professionals</p>
         </div>
-        <button className="btn" onClick={() => setShowModal(true)} style={{ width: '100%', sm: { width: 'auto' } }}>
+        <button className="btn" onClick={() => setShowModal(true)}>
           <Plus size={18} />
           Add New Doctor
         </button>
