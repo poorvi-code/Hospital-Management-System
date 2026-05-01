@@ -10,43 +10,25 @@ const Doctors = () => {
   });
   const [error, setError] = useState('');
 
-  const fetchDoctors = async () => {
-    try {
-      const res = await api.get('/doctors');
-      setDoctors(res.data);
-    } catch (err) {
-      setError('Failed to fetch doctors');
-    }
-  };
-
-  useEffect(() => {
-    fetchDoctors();
-  }, []);
-
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await api.post('/doctors', formData);
-      setShowModal(false);
-      setFormData({ name: '', specialization: '', contact: '' });
-      fetchDoctors();
-    } catch (err) {
-      setError('Failed to add doctor');
+  const deleteDoctor = async (id) => {
+    if (window.confirm('Are you sure you want to remove this doctor?')) {
+      try {
+        await api.delete(`/doctors/${id}`);
+        fetchDoctors();
+      } catch (err) {
+        setError('Failed to delete doctor');
+      }
     }
   };
 
   return (
     <div className="animate-fade-up">
-      <div className="header-flex">
+      <div className="header-flex" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1rem' }}>
         <div className="header-text">
           <h2 className="page-title">Doctors Directory</h2>
           <p className="page-subtitle">Manage healthcare professionals</p>
         </div>
-        <button className="btn" onClick={() => setShowModal(true)}>
+        <button className="btn" onClick={() => setShowModal(true)} style={{ width: '100%', sm: { width: 'auto' } }}>
           <Plus size={18} />
           Add New Doctor
         </button>
@@ -62,8 +44,18 @@ const Doctors = () => {
       <div className="grid">
         {doctors.map(doctor => (
           <div key={doctor._id} className="stat-card" style={{ padding: '1.5rem', alignItems: 'flex-start', gap: '1rem', flexDirection: 'column' }}>
+            <div style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
+              <button 
+                onClick={() => deleteDoctor(doctor._id)}
+                style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', opacity: 0.7 }}
+                title="Delete Doctor"
+              >
+                <XCircle size={20} />
+              </button>
+            </div>
+            
             <div className="flex-center" style={{ gap: '1rem', width: '100%' }}>
-              <div className="stat-icon" style={{ background: 'rgba(37, 99, 235, 0.1)', width: '50px', height: '50px' }}>
+              <div className="stat-icon" style={{ background: 'rgba(37, 99, 235, 0.1)', width: '50px', height: '50px', flexShrink: 0 }}>
                 <Stethoscope size={24} />
               </div>
               <div>
@@ -78,7 +70,7 @@ const Doctors = () => {
                 <span>{doctor.contact}</span>
               </div>
               <div className="flex-center" style={{ fontSize: '0.9rem', fontWeight: 500 }}>
-                {doctor.availability ? (
+                {doctor.availability !== false ? (
                   <><CheckCircle size={16} color="var(--success)" /><span style={{ color: 'var(--success)' }}>Currently Available</span></>
                 ) : (
                   <><XCircle size={16} color="var(--danger)" /><span style={{ color: 'var(--danger)' }}>Unavailable</span></>
