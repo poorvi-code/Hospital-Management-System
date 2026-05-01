@@ -18,3 +18,13 @@ exports.addDoctor = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.deleteDoctor = async (req, res, next) => {
+  try {
+    await Doctor.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Doctor removed' });
+  } catch (error) {
+    next(error);
+  }
+};
+
