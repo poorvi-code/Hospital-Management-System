@@ -3,11 +3,13 @@ import axios from 'axios';
 
 export const AuthContext = createContext();
 
+// Use Environment Variable if available, otherwise fallback to localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Check if user is already logged in (check localStorage)
     useEffect(() => {
         const savedUser = localStorage.getItem('userInfo');
         if (savedUser) {
@@ -15,24 +17,21 @@ export const AuthProvider = ({ children }) => {
         }
         setLoading(false);
     }, []);
-    // Register function
+
     const register = async (name, email, password, role) => {
-        const { data } = await axios.post('http://localhost:5000/api/users/register', {
+        const { data } = await axios.post(`${API_BASE_URL}/users/register`, {
             name, email, password, role
         });
         setUser(data);
         localStorage.setItem('userInfo', JSON.stringify(data));
     };
 
-
-    // Login function
     const login = async (email, password) => {
-        const { data } = await axios.post('http://localhost:5000/api/users/login', { email, password });
+        const { data } = await axios.post(`${API_BASE_URL}/users/login`, { email, password });
         setUser(data);
         localStorage.setItem('userInfo', JSON.stringify(data));
     };
 
-    // Logout function
     const logout = () => {
         setUser(null);
         localStorage.removeItem('userInfo');
@@ -43,5 +42,4 @@ export const AuthProvider = ({ children }) => {
             {children}
         </AuthContext.Provider>
     );
-
 };

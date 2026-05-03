@@ -1,11 +1,12 @@
 import axios from 'axios';
 
+// Use Environment Variable if available, otherwise fallback to localhost
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const api = axios.create({
-  // Changed from Render URL to Localhost
-  baseURL: 'http://localhost:5000/api',
+  baseURL,
 });
 
-// Add a request interceptor to include the JWT token
 api.interceptors.request.use((config) => {
   const userInfo = localStorage.getItem('userInfo');
   if (userInfo) {
